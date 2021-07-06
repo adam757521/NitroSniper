@@ -1,0 +1,44 @@
+{
+  "TOKENS": {
+    "MAIN": "",
+    "ALTS": [
+      ""
+    ]
+  },
+  "WEBHOOK": "",
+  "NITRO": {
+    "PAYMENT_METHOD": false,
+    "DM_DELAY": 5,
+    "DELAY": 0
+  },
+  "GIVEAWAY": {
+    "ENABLED": false,
+    "DM_MESSAGE": "Looks like i won the giveaway, can i redeem the prize?",
+    "DM_DELAY": 180,
+    "DELAY": 5,
+    "BLACKLISTED_WORDS": [
+      "bot",
+      "ban",
+      "test"
+    ],
+    "WHITELISTED_WORDS": [
+      "nitro",
+      "discord"
+    ],
+    "WHITELIST_ONLY": false
+  },
+  "INVITE": {
+    "JOIN_WELCOME_SCREEN": false,
+    "BLACKLISTED_WORDS": [],
+    "WHITELISTED_WORDS": [
+      "giveaway",
+      "nitro"
+    ],
+    "WHITELIST_ONLY": false,
+    "ALT_ONLY": true,
+    "MAX_SERVERS": 6,
+    "COOLDOWN": 6,
+    "MIN_MEMBERS": 1500,
+    "MAX_MEMBERS": 999999
+  }
+}
