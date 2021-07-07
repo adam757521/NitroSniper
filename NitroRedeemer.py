@@ -44,13 +44,15 @@ class NitroRedeemer:
         self.gift_re = re.compile(fr'({"|".join(self.links)})/\w{{16,24}}')
         self.rate_limits = {'rate_timestamp': 0, 'rate_delay': 0}
         self.session = aiohttp.ClientSession()
+        self.data = []
 
     async def redeem_code(self, code):
         if code in self.cache:
             return None, Responses.IN_CACHE
 
         payment_required = False
-        response = -1
+        response = Responses.RATE_LIMITED
+        self.cache[code] = response
         token = None
 
         for token in self.tokens:
@@ -72,8 +74,10 @@ class NitroRedeemer:
                 'payment_source_id': payment_id
             }
 
+            start = time.time()
             r = await self.session.post(f'https://discordapp.com/api/v8/entitlements/gift-codes/{code}/redeem',
                                         headers=headers, json=payload)
+            self.data.append(round((time.time() - start) * 1000))
 
             response = self.error_handler.handle_errors(await r.text())
             self.cache[code] = response

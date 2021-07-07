@@ -131,8 +131,7 @@ class Sniper(commands.Bot):
         self.alt = alt
         self.payment_source_id = None
         self.webhook = get_config()["WEBHOOK"]
-        self.sniped_invites = 0
-        self.invite_sniper = True
+        self.nitro_redeemer = None
 
     def get_headers(self):
         headers = {
@@ -158,8 +157,6 @@ class Sniper(commands.Bot):
             return await r.json()
 
     async def on_ready(self):
-        global nitro_redeemer
-
         if get_config()['NITRO']['PAYMENT_METHOD']:
             payment_methods = await self.get_payment()
 
@@ -175,19 +172,22 @@ class Sniper(commands.Bot):
             log(f'{Fore.GREEN}{self.user} is ready.{Fore.WHITE}')
             return
 
+        self.nitro_redeemer = NitroRedeemer.NitroRedeemer({bot.token: bot.payment_source_id for bot in bots},
+                                                          NitroRedeemer.ErrorHandler())
         loader.stop()
         clear()
         print_nitro()
         print_title()
 
         ready_text = rainbow(f"Connected to discord.")
-        report_webhook = f"{Fore.GREEN}Specified.{Fore.WHITE}" if self.webhook else f"{Fore.RED}Not specified.{Fore.WHITE}"
-        payment_method = f"{Fore.GREEN}Found.{Fore.WHITE}" if self.payment_source_id else f"{Fore.RED}Not Found.{Fore.WHITE}"
+        report_webhook = f"{Fore.GREEN}Specified.{Fore.CYAN}" if self.webhook else f"{Fore.RED}Not specified.{Fore.CYAN}"
+        payment_method = f"{Fore.GREEN}Found.{Fore.CYAN}" if self.payment_source_id else f"{Fore.RED}Not Found.{Fore.CYAN}"
 
         print(Fore.CYAN + f'''┍━━ INFO
-┃  Payment Method: {Fore.GREEN}{payment_method}
-{Fore.CYAN}┃  Reporting webhook: {report_webhook}
-{Fore.CYAN}┃  {ready_text}{Fore.CYAN}
+┃  Main Account: {Fore.GREEN}{self.user}{Fore.CYAN}
+┃  Payment Method: {payment_method}
+┃  Reporting webhook: {report_webhook}
+┃  {ready_text}{Fore.CYAN}
 ┃''' + Fore.WHITE)
 
         notes = []
@@ -201,10 +201,8 @@ class Sniper(commands.Bot):
             print(Fore.CYAN + '┃' + Fore.WHITE + '  ' + Fore.RED + note + Fore.WHITE)
         print()
 
-        nitro_redeemer = NitroRedeemer.NitroRedeemer({bot.token: bot.payment_source_id for bot in bots}, NitroRedeemer.ErrorHandler())
-
     async def on_message(self, message):
-        if codes := nitro_redeemer.find_codes(message.content):
+        if codes := main.nitro_redeemer.find_codes(message.content):
             if message.author == self.user:
                 return
 
@@ -212,9 +210,12 @@ class Sniper(commands.Bot):
                 get_config()["NITRO"]["DM_DELAY"] if not message.guild else get_config()["NITRO"]["DELAY"])
 
             for code in codes:
-                response = await nitro_redeemer.redeem_code(code)
+                response = await main.nitro_redeemer.redeem_code(code)
 
                 additional_data = f" - [{Fore.CYAN}{code}{Fore.WHITE}] - [{Fore.YELLOW}{message.guild if message.guild else 'DM'}{Fore.WHITE}] - [{Fore.YELLOW}{message.author}{Fore.WHITE}] [{Fore.YELLOW}{response[0]}{Fore.WHITE}]"
+                if response[1] == NitroRedeemer.Responses.IN_CACHE and not get_config()["NITRO"]["PRINT_CACHE"]:
+                    return
+
                 log(f'[{Fore.CYAN}{response[1].name}{Fore.WHITE}]' + additional_data)
 
                 if response[1] == NitroRedeemer.Responses.CLAIMED:
@@ -248,7 +249,6 @@ class Sniper(commands.Bot):
 
             elif ('You won' in message.content or 'You have won' in message.content) and message.author.bot and str(
                     self.user.id) in message.content:
-                log(message.content, message.guild)
                 prize = None
                 for giveawayregex in giveawayre:
                     if giveawayregex.match(message.content):
@@ -294,69 +294,18 @@ class Sniper(commands.Bot):
                 log(f'{Fore.GREEN}[Won a rerolled giveaway!]{Fore.WHITE}' + additional_data)
                 await self.notify_webhook(f'Won a rerolled giveaway, check console for more information.')
 
-        # idk why it phoneban me
-
-        # print(message.content if invitelinkre.match(message.content) else '', end='')
-        # if invitelinkre.match(message.content) and self.invite_sniper:
-        #     print('1')
-        #     if get_config()['INVITE']['ALT_ONLY'] and not self.alt:
-        #         return
-        #
-        #     code = invitelinkre.search(message.content).group(0)
-        #     code = code.replace('discord.gg/', '')
-        #
-        #     url = "https://discord.com/api/v8/invites/" + code
-        #     async with aiohttp.ClientSession() as session:
-        #         r = await session.get(url)
-        #
-        #         r_data = await r.json()
-        #         print('a', r_data)
-        #         if "WELCOME_SCREEN_ENABLED" in r_data['guild']['features'] and not get_config()['INVITE']['JOIN_WELCOME_SCREEN']:
-        #             # will add auto accepter soon
-        #             return
-        #
-        #         print('b')
-        #         if any(x in str(r_data) for x in get_config()['INVITE']['BLACKLISTED_WORDS']):
-        #             return
-        #
-        #         print('c')
-        #         if not any(x in str(r_data) for x in get_config()['INVITE']['WHITELISTED_WORDS']) and get_config()['INVITE']['WHITELIST_ONLY']:
-        #             return
-        #
-        #         print('d')
-        #         r = await session.post(url, headers=self.get_headers())  # join lol
-        #
-        #     if self.sniped_invites >= get_config()['INVITE']['MAX_SERVERS']:
-        #         self.invite_sniper = False
-        #         print(f'[{Fore.GREEN}Invite Sniper Turing Off{Fore.WHITE}]')
-        #
-        #         await asyncio.sleep(3600 * get_config()["INVITE"]['COOLDOWN'])
-        #
-        #         print(f'[{Fore.GREEN}Invite Sniper Turning On{Fore.WHITE}]')
-        #         self.invite_sniper = True
-
     async def run(self):
         await super().start(self.token)
 
 
-main_token = get_config()["TOKENS"]["MAIN"]
-main = Sniper(token=main_token, alt=False, command_prefix="<<<", self_bot=True, help_command=None)
+main = Sniper(token=get_config()["TOKENS"]["MAIN"], alt=False, command_prefix="<<<", self_bot=True, help_command=None)
+main.load_extension("cogs.Commands")
+
 alts = []
 for alt_token in get_config()["TOKENS"]["ALTS"]:
     alts.append(Sniper(token=alt_token, alt=True, command_prefix="<<<", self_bot=True, help_command=None))
 
 bots = [main] + alts
-
-
-@main.command()
-async def history(ctx):
-    code_string = ""
-    for code in nitro_redeemer.cache:
-        code_string += f"Code: {code}, {nitro_redeemer.cache[code]}\n"
-
-    list_strings = [code_string[i:i + 2000] for i in range(0, len(code_string), 2000)]
-    for string in list_strings:
-        await ctx.send(string)
 
 
 if __name__ == '__main__':
