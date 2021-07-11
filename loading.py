@@ -5,15 +5,18 @@ from time import sleep
 
 
 class Loader:
-    def __init__(self, desc="Loading...", end="Done!", timeout=0.1):
-        """
-        A loader-like context manager
+    """
+    A loader-like context manager
 
-        Args:
-            desc (str, optional): The loader's description. Defaults to "Loading...".
-            end (str, optional): Final print. Defaults to "Done!".
-            timeout (float, optional): Sleep time between prints. Defaults to 0.1.
-        """
+    Args:
+        desc (str, optional): The loader's description. Defaults to "Loading...".
+        end (str, optional): Final print. Defaults to "Done!".
+        timeout (float, optional): Sleep time between prints. Defaults to 0.1.
+
+    STACKOVERFLOW.COM
+    """
+
+    def __init__(self, desc="Loading...", end="Done!", timeout=0.1):
         self.desc = desc
         self.end = end
         self.timeout = timeout

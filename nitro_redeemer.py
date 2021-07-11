@@ -6,6 +6,30 @@ import aiohttp
 
 
 class Responses(Enum):
+    """An enum representing all API responses.
+
+    Attributes
+    -----------
+    RATE_LIMITED: :class:`int`
+        The user is being rate-limited.
+    INVALID_GIFT: :class:`int`
+        The gift passed is invalid.
+    ALREADY_CLAIMED: :class:`int`
+        The gift passed is already claimed by another user.
+    NO_PAYMENT_SOURCE: :class:`int`
+        The gift passed needs a payment source id.
+    ALREADY_PURCHASED: :class:`int`
+        Cannot claim gift because the user already has a subscription of another tier.
+    ACCESS_DENIED: :class:`int`
+        Access to API is denied.
+    NOT_VERIFIED: :class:`int
+        User is not verified.
+    CLAIMED: :class:`int`
+        User claimed gift.
+    IN_CACHE: :class:`int`
+        Gift is already in NitroRedeemer's cache.
+    """
+
     RATE_LIMITED = 0
     INVALID_GIFT = 1
     ALREADY_CLAIMED = 2
@@ -18,6 +42,14 @@ class Responses(Enum):
 
 
 class ErrorHandler:
+    """An API error handler.
+
+    Attributes
+    -----------
+    error_responses: :class:`dict[str, Responses]`
+        Represents API errors and their API text.
+    """
+
     def __init__(self):
         self.error_responses = {'{"message": "Unknown Gift Code",'
                                 ' "code": 10038}': Responses.INVALID_GIFT,
@@ -45,6 +77,26 @@ class ErrorHandler:
 
 
 class NitroRedeemer:
+    """A nitro redeemer class that redeems nitro gifts.
+
+    Attributes
+    -----------
+    tokens: :class:`list[str]`
+        Represents the tokens used by the redeemer.
+    error_handler: :class:`ErrorHandler`
+        The error handler the redeemer will use.
+    cache: :class:`dict[str, Responses]`
+        Represents a dict of codes and responses.
+    links: :class:`list[str]`
+        Represents a list of links that are used to parse the gift.
+    gift_re: :class:`re.Pattern`
+        Represents the regex the redeemer will use to parse gifts.
+    session: :class:`aiohttp.ClientSession`
+        Represents a aiohttp session used by the redeemer.
+    data: :class:`list[float]`
+        Represents a list of type float that represents discord API latency.
+    """
+
     def __init__(self, tokens, error_handler: ErrorHandler):
         self.tokens = tokens
         self.error_handler = error_handler
