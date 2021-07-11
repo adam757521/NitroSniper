@@ -1,19 +1,21 @@
 import asyncio
 import ctypes
+import json
 import os
 import re
 import sys
 import time
 from datetime import datetime
 from itertools import cycle
+
 import aiohttp
 import colorama
 import discord
-import json
 from colorama import Fore
 from discord.ext import commands
+
+import nitro_redeemer
 from loading import Loader
-import NitroRedeemer
 
 try:
     ctypes.windll.kernel32.SetConsoleTitleW("Adam's Sniper & Giveaway Joiner")
@@ -96,7 +98,6 @@ giveawayre = {
     re.compile("You won \\*\\*(.*)\\*\\*"): 10
 }
 giveawayhostre = re.compile("Hosted by: <@[0-9]+>")
-invitelinkre = re.compile("discord.gg\/([0-9a-zA-Z]+)")
 
 
 def get_config() -> dict:
@@ -136,7 +137,8 @@ class Sniper(commands.Bot):
     def get_headers(self):
         headers = {
             'Content-Type': 'application/json',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 OPR/75.0.3969.285',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                          ' (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 OPR/75.0.3969.285',
             'Authorization': self.token
         }
         return headers
@@ -172,16 +174,18 @@ class Sniper(commands.Bot):
             log(f'{Fore.GREEN}{self.user} is ready.{Fore.WHITE}')
             return
 
-        self.nitro_redeemer = NitroRedeemer.NitroRedeemer({bot.token: bot.payment_source_id for bot in bots},
-                                                          NitroRedeemer.ErrorHandler())
+        self.nitro_redeemer = nitro_redeemer.NitroRedeemer({bot.token: bot.payment_source_id for bot in bots},
+                                                           nitro_redeemer.ErrorHandler())
         loader.stop()
         clear()
         print_nitro()
         print_title()
 
         ready_text = rainbow(f"Connected to discord.")
-        report_webhook = f"{Fore.GREEN}Specified.{Fore.CYAN}" if self.webhook else f"{Fore.RED}Not specified.{Fore.CYAN}"
-        payment_method = f"{Fore.GREEN}Found.{Fore.CYAN}" if self.payment_source_id else f"{Fore.RED}Not Found.{Fore.CYAN}"
+        report_webhook = f"{Fore.GREEN}Specified.{Fore.CYAN}" if self.webhook else \
+            f"{Fore.RED}Not specified.{Fore.CYAN}"
+        payment_method = f"{Fore.GREEN}Found.{Fore.CYAN}" if self.payment_source_id else \
+            f"{Fore.RED}Not Found.{Fore.CYAN}"
 
         print(Fore.CYAN + f'''┍━━ INFO
 ┃  Main Account: {Fore.GREEN}{self.user}{Fore.CYAN}
@@ -212,19 +216,25 @@ class Sniper(commands.Bot):
             for code in codes:
                 response = await main.nitro_redeemer.redeem_code(code)
 
-                additional_data = f" - [{Fore.CYAN}{code}{Fore.WHITE}] - [{Fore.YELLOW}{message.guild if message.guild else 'DM'}{Fore.WHITE}] - [{Fore.YELLOW}{message.author}{Fore.WHITE}] [{Fore.YELLOW}{response[0]}{Fore.WHITE}]"
-                if response[1] == NitroRedeemer.Responses.IN_CACHE and not get_config()["NITRO"]["PRINT_CACHE"]:
+                additional_data = f" - [{Fore.CYAN}{code}{Fore.WHITE}] - [{Fore.YELLOW}" \
+                                  f"{message.guild if message.guild else 'DM'}{Fore.WHITE}] - [" \
+                                  f"{Fore.YELLOW}{message.author}{Fore.WHITE}] " \
+                                  f"[{Fore.YELLOW}{response[0]}{Fore.WHITE}]"
+                if response[1] == nitro_redeemer.Responses.IN_CACHE and not get_config()["NITRO"]["PRINT_CACHE"]:
                     return
 
                 log(f'[{Fore.CYAN}{response[1].name}{Fore.WHITE}]' + additional_data)
 
-                if response[1] == NitroRedeemer.Responses.CLAIMED:
+                if response[1] == nitro_redeemer.Responses.CLAIMED:
                     await self.notify_webhook(f"Claimed nitro gift, Check console for more details.")
 
         await self.process_commands(message)
 
         if get_config()["GIVEAWAY"]["ENABLED"]:
-            if message.author.bot and '**G I V E A W A Y' in message.content or "**GIVEAWAY" in message.content and '<:yay:' in message.content or ':santa_lunar_gifts:' in message.content or ':PQ_giveaway:' in message.content:
+            # TODO: add giveaway class
+            if message.author.bot and '**G I V E A W A Y' in message.content \
+                    or "**GIVEAWAY" in message.content and '<:yay:' in message.content \
+                    or ':santa_lunar_gifts:' in message.content or ':PQ_giveaway:' in message.content:
                 if not message.embeds:
                     return
 
@@ -243,7 +253,9 @@ class Sniper(commands.Bot):
                         try:
                             await message.add_reaction(reactions[0])
                             log(
-                                f"{Fore.GREEN}[Entered a giveaway.]{Fore.WHITE} - [{Fore.YELLOW}{title}{Fore.WHITE}] - [{Fore.YELLOW}{message.guild.name}{Fore.WHITE}] - [{Fore.YELLOW}{self.user}{Fore.WHITE}]")
+                                f"{Fore.GREEN}[Entered a giveaway.]{Fore.WHITE} - [{Fore.YELLOW}{title}{Fore.WHITE}]"
+                                f" - [{Fore.YELLOW}{message.guild.name}{Fore.WHITE}]"
+                                f" - [{Fore.YELLOW}{self.user}{Fore.WHITE}]")
                         except:
                             return
 
@@ -255,7 +267,9 @@ class Sniper(commands.Bot):
                         prize = giveawayregex.search(message.content).group(0)[giveawayre[giveawayregex]:-2]
                         break
 
-                additional_data = f' - [{Fore.YELLOW}{prize}{Fore.WHITE}] - [{Fore.YELLOW}{message.guild.name}{Fore.WHITE}] - [{Fore.YELLOW}{self.user}{Fore.WHITE}]'
+                additional_data = f' - [{Fore.YELLOW}{prize}{Fore.WHITE}] - ' \
+                                  f'[{Fore.YELLOW}{message.guild.name}{Fore.WHITE}] - ' \
+                                  f'[{Fore.YELLOW}{self.user}{Fore.WHITE}]'
 
                 log(f'{Fore.GREEN}[Won a giveaway!]{Fore.WHITE}' + additional_data)
                 await self.notify_webhook(f'Won a giveaway, check console for more information.')
@@ -289,7 +303,8 @@ class Sniper(commands.Bot):
 
             elif '🎉' in message.content and 'The new winner' in message.content and str(
                     self.user.id) in message.content and message.author.bot:
-                additional_data = f' - [{Fore.YELLOW}{message.guild.name}{Fore.WHITE}] - [{Fore.YELLOW}{self.user}{Fore.WHITE}]'
+                additional_data = f' - [{Fore.YELLOW}{message.guild.name}{Fore.WHITE}]' \
+                                  f' - [{Fore.YELLOW}{self.user}{Fore.WHITE}]'
 
                 log(f'{Fore.GREEN}[Won a rerolled giveaway!]{Fore.WHITE}' + additional_data)
                 await self.notify_webhook(f'Won a rerolled giveaway, check console for more information.')
@@ -299,14 +314,13 @@ class Sniper(commands.Bot):
 
 
 main = Sniper(token=get_config()["TOKENS"]["MAIN"], alt=False, command_prefix="<<<", self_bot=True, help_command=None)
-main.load_extension("cogs.Commands")
+main.load_extension("cogs.commands")
 
 alts = []
 for alt_token in get_config()["TOKENS"]["ALTS"]:
     alts.append(Sniper(token=alt_token, alt=True, command_prefix="<<<", self_bot=True, help_command=None))
 
 bots = [main] + alts
-
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

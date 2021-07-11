@@ -27,10 +27,10 @@ class Loader:
         return self
 
     def _animate(self):
-        for c in cycle(self.steps):
+        for loading_bar in cycle(self.steps):
             if self.done:
                 break
-            print(f"\r{self.desc} {c}", flush=True, end="")
+            print(f"\r{self.desc} {loading_bar}", flush=True, end="")
             sleep(self.timeout)
 
     def __enter__(self):
@@ -42,7 +42,7 @@ class Loader:
         print("\r" + " " * cols, end="", flush=True)
         print(f"\r{self.end}", flush=True)
 
-    def __exit__(self, exc_type, exc_value, tb):
+    def __exit__(self, exc_type, exc_value, traceback):
         # handle exceptions with those variables ^
         self.stop()
 
