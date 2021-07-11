@@ -40,10 +40,12 @@ class Commands(commands.Cog):
         embed.add_field(name="Ping Data", value=ping_data, inline=False)
 
         response_data = '\n'.join(
-            [f"{x[0].name}: {x[1]}" for x in Counter(self.bot.nitro_redeemer.cache.values()).most_common()])
+            [f"{x[0].name}:"
+             f" {x[1]}" for x in Counter(self.bot.nitro_redeemer.cache.values()).most_common()])
         embed.add_field(name="Response Data", value=response_data, inline=False)
 
-        embed.add_field(name="Total API Calls", value=str(len(self.bot.nitro_redeemer.data)), inline=False)
+        embed.add_field(name="Total API"
+                             " Calls", value=str(len(self.bot.nitro_redeemer.data)), inline=False)
 
         await ctx.send(embed=embed)
 

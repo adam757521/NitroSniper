@@ -19,10 +19,13 @@ class Responses(Enum):
 
 class ErrorHandler:
     def __init__(self):
-        self.error_responses = {'{"message": "Unknown Gift Code", "code": 10038}': Responses.INVALID_GIFT,
-                                '{"message": "This gift has been redeemed already.", "code": 50050}':
+        self.error_responses = {'{"message": "Unknown Gift Code",'
+                                ' "code": 10038}': Responses.INVALID_GIFT,
+                                '{"message": "This gift has been'
+                                ' redeemed already.", "code": 50050}':
                                     Responses.ALREADY_CLAIMED,
-                                '{"message": "Payment source required to redeem gift.", "code": 50070}':
+                                '{"message": "Payment source required to'
+                                ' redeem gift.", "code": 50070}':
                                     Responses.NO_PAYMENT_SOURCE,
                                 '{"message": "Already purchased", "code": 100011}':
                                     Responses.ALREADY_PURCHASED,
@@ -72,7 +75,8 @@ class NitroRedeemer:
             headers = {
                 'Content-Type': 'application/json',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-                              ' (KHTML, like Gecko) Chrome/89.0.4389.128 Safari/537.36 OPR/75.0.3969.285',
+                              ' (KHTML, like Gecko) Chrome/89.0.4389.128 '
+                              'Safari/537.36 OPR/75.0.3969.285',
                 'Authorization': token
             }
 
@@ -82,17 +86,18 @@ class NitroRedeemer:
             }
 
             start = time.time()
-            r = await self.session.post(f'https://discordapp.com/api/v8/entitlements/gift-codes/{code}/redeem',
-                                        headers=headers, json=payload)
+            request = await self.session.post(f'https://discordapp.com/api/v8/entitlements/'
+                                              f'gift-codes/{code}/redeem',
+                                              headers=headers, json=payload)
             self.data.append(round((time.time() - start) * 1000))
 
-            response = self.error_handler.handle_errors(await r.text())
+            response = self.error_handler.handle_errors(await request.text())
             self.cache[code] = response
             if response == Responses.ALREADY_CLAIMED:
                 break
 
             if response == Responses.CLAIMED:
-                print(await r.text())
+                print(await request.text())
                 break
 
             if response == Responses.INVALID_GIFT:
@@ -109,9 +114,10 @@ class NitroRedeemer:
                 self.tokens.remove(token)
 
             if response == Responses.RATE_LIMITED:
-                response_json = await r.json()
+                response_json = await request.json()
 
-                self.rate_limits = {'rate_timestamp': time.time(), 'rate_delay': response_json['retry_after']}
+                self.rate_limits = {'rate_timestamp': time.time(),
+                                    'rate_delay': response_json['retry_after']}
                 break
 
         return token, response
