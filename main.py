@@ -206,7 +206,9 @@ class Sniper(commands.Bot):
         print()
 
     async def on_message(self, message):
-        if codes := main.nitro_redeemer.find_codes(message.content):
+        codes = main.nitro_redeemer.find_codes(message.content)
+
+        if codes:
             if message.author == self.user:
                 return
 

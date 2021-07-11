@@ -5,6 +5,14 @@ from discord.ext import commands
 
 
 class Commands(commands.Cog):
+    """A discord.py cog containing useful stat commands.
+
+    Attributes
+    -----------
+    bot: :class:`commands.Bot`
+        Represents the bot used by the cog.
+    """
+
     def __init__(self, bot):
         self.bot = bot
 
