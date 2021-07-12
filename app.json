@@ -6,8 +6,8 @@
    "env": {
       "settings": {
          "description": "Config file for sniper",
-         "required": true,
-         "value": "{\n  TOKENS: {\n    MAIN: '',\n    ALTS: [\n      ''\n    ]\n  },\n  WEBHOOK: '',\n  NITRO: {\n    PAYMENT_METHOD: false,\n    DM_DELAY: 5,\n    DELAY: 0\n  },\n  GIVEAWAY: {\n    ENABLED: false,\n    DM_MESSAGE: 'Looks like i won the giveaway, can i redeem the prize?',\n    DM_DELAY: 180,\n    DELAY: 5,\n    BLACKLISTED_WORDS: [\n      'bot',\n      'ban',\n      'test'\n    ],\n    WHITELISTED_WORDS: [\n      'nitro',\n      'discord'\n    ],\n    WHITELIST_ONLY: false\n  },\n  INVITE: {\n    JOIN_WELCOME_SCREEN: false,\n    BLACKLISTED_WORDS: [],\n    WHITELISTED_WORDS: [\n      'giveaway',\n      'nitro'\n    ],\n    WHITELIST_ONLY: false,\n    ALT_ONLY: true,\n    MAX_SERVERS: 6,\n    COOLDOWN: 6,\n    MIN_MEMBERS: 1500,\n    MAX_MEMBERS: 999999\n  }\n}"
+         "required": true,: 1500,
+         "value": "{\n  \"TOKENS\": {\n    \"MAIN\": \"\",\n    \"ALTS\": [\n      \"\"\n    ]\n  },\n  \"WEBHOOK\": \"\",\n  \"NITRO\": {\n    \"PAYMENT_METHOD\": false,\n    \"PRINT_CACHE\": false,\n    \"DM_DELAY\": 5,\n    \"DELAY\": 0\n  },\n  \"GIVEAWAY\": {\n    \"ENABLED\": false,\n    \"DM_MESSAGE\": \"Looks like i won the giveaway, can i redeem the prize?\",\n    \"DM_DELAY\": 180,\n    \"DELAY\": 5,\n    \"BLACKLISTED_WORDS\": [\n      \"bot\",\n      \"ban\",\n      \"test\"\n    ],\n    \"WHITELISTED_WORDS\": [\n      \"nitro\",\n      \"discord\"\n    ],\n    \"WHITELIST_ONLY\": false\n  },\n  \"INVITE\": {\n    \"JOIN_WELCOME_SCREEN\": false,\n    \"BLACKLISTED_WORDS\": [],\n    \"WHITELISTED_WORDS\": [\n      \"giveaway\",\n      \"nitro\"\n    ],\n    \"WHITELIST_ONLY\": false,\n    \"ALT_ONLY\": true,\n    \"MAX_SERVERS\": 6,\n    \"COOLDOWN\": 6,\n    \"MIN_MEMBERS\": 1500,\n    \"MAX_MEMBERS\": 999999\n  }\n}"
       }
    }
 }
