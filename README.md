@@ -18,6 +18,11 @@ Features
 - Invite Sniper (Under work).
 - Many more.
 
+Installation
+-------------
+[![Deploy to heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/adam757521/NitroSniper/tree/main)
+![](https://heroku.com/deploy?template=https://github.com/slow/nitro-sniper/tree/main)
+
 Disclaimer
 -------------
 You `WILL` encounter bugs while using Giveaway Joiner / DM host. I advise of disabling these features.
