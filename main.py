@@ -2,6 +2,7 @@ import asyncio
 import ctypes
 import json
 import os
+import subprocess
 import re
 import sys
 import time
@@ -19,7 +20,7 @@ from loading import Loader
 
 try:
     ctypes.windll.kernel32.SetConsoleTitleW("Adam's Sniper & Giveaway Joiner")
-except:
+except AttributeError:
     pass
 
 colorama.init()
@@ -30,7 +31,7 @@ def log(string):
 
 
 def clear():
-    os.system("clear" if os.name == 'posix' else "cls")
+    subprocess.call("clear" if os.name == 'posix' else "cls", shell=False)
 
 
 def pad_to_center(l: list, w: int) -> str:
@@ -78,7 +79,7 @@ def print_title():
     print(pad_to_center(text.splitlines(), width))
 
 
-# TODO NICE GUI, PRIVNOTE
+# PRIVNOTE
 print_nitro()
 print_title()
 
@@ -147,10 +148,7 @@ class Sniper(commands.Bot):
         async with aiohttp.ClientSession() as session:
             webhook = discord.Webhook.from_url(self.webhook, adapter=discord.AsyncWebhookAdapter(session))
 
-            try:
-                await webhook.send(text)
-            except:
-                pass
+            await webhook.send(text)
 
     async def get_payment(self):
         async with aiohttp.ClientSession() as session:
@@ -233,7 +231,7 @@ class Sniper(commands.Bot):
         await self.process_commands(message)
 
         if get_config()["GIVEAWAY"]["ENABLED"]:
-            # TODO: add giveaway class
+            # add giveaway class
             if message.author.bot and '**G I V E A W A Y' in message.content \
                     or "**GIVEAWAY" in message.content and '<:yay:' in message.content \
                     or ':santa_lunar_gifts:' in message.content or ':PQ_giveaway:' in message.content:
@@ -258,7 +256,7 @@ class Sniper(commands.Bot):
                                 f"{Fore.GREEN}[Entered a giveaway.]{Fore.WHITE} - [{Fore.YELLOW}{title}{Fore.WHITE}]"
                                 f" - [{Fore.YELLOW}{message.guild.name}{Fore.WHITE}]"
                                 f" - [{Fore.YELLOW}{self.user}{Fore.WHITE}]")
-                        except:
+                        except discord.HTTPException:
                             return
 
             elif ('You won' in message.content or 'You have won' in message.content) and message.author.bot and str(
