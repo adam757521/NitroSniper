@@ -1,7 +1,12 @@
-NitroSniper
-==========
+<h1 align="center">NitroSniper</h1>
 
-A discord nitro code sniper written in python.
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/codefactor/grade/github/adam757521/NitroSniper?style=flat-square" /></a>
+</p>
+
+<p align="center">
+   A discord nitro code sniper written in python.
+</p>
 
 Features
 -------------
