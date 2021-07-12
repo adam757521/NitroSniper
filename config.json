@@ -8,6 +8,7 @@
   "WEBHOOK": "",
   "NITRO": {
     "PAYMENT_METHOD": false,
+    "PRINT_CACHE": false,
     "DM_DELAY": 5,
     "DELAY": 0
   },
