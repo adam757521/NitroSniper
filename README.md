@@ -38,7 +38,12 @@ Installation
   - Install the dependencies using `python -m pip install -r requirements.txt` 
   - Change the `config.json` file to your liking.
   - Run the sniper using `python main.py`
-  
+
+TODO
+-------------
+- Add nitro limiting (2 nitro claims per 24 hours etc..)
+- Make webhook messages nicer.
+- Got suggestions? Create an issue!
 
 Disclaimer
 -------------
