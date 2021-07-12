@@ -20,9 +20,20 @@ Features
 
 Installation
 -------------
-[![Deploy to heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/adam757521/NitroSniper/tree/main)
+### Heroku: ###
 
-Make sure you turn on the worker dyno!
+  [![Deploy to heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/adam757521/NitroSniper/tree/main)
+  
+  - Turn on the worker dyno.
+  - Change the settings env to your liking.
+
+### Self hosting: ###
+  - Clone the repository.
+  - Make sure python is installed.
+  - Install the dependencies using `python -m pip install -r requirements.txt` 
+  - Change the `config.json` file to your liking.
+  - Run the sniper using `python main.py`
+  
 
 Disclaimer
 -------------
