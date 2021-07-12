@@ -23,6 +23,7 @@ try:
 except AttributeError:
     pass
 
+heroku = 'settings' in os.environ
 colorama.init()
 
 
@@ -107,6 +108,9 @@ giveawayhostre = re.compile("Hosted by: <@[0-9]+>")
 
 
 def get_config() -> dict:
+    if heroku:
+        return json.loads(os.environ['settings'])
+
     with open('config.json') as f:
         return json.load(f)
 
