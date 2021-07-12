@@ -116,7 +116,7 @@ class NitroRedeemer:
         self.cache[code] = response
         token = None
 
-        for token in self.tokens:
+        for token in list(self.tokens):
             payment_id = self.tokens[token]
             if payment_required and not payment_id:
                 continue
