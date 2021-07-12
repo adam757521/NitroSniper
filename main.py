@@ -155,9 +155,12 @@ class Sniper(commands.Bot):
 
     async def notify_webhook(self, text):
         async with aiohttp.ClientSession() as session:
-            webhook = discord.Webhook.from_url(self.webhook, adapter=discord.AsyncWebhookAdapter(session))
+            try:
+                webhook = discord.Webhook.from_url(self.webhook, adapter=discord.AsyncWebhookAdapter(session))
 
-            await webhook.send(text)
+                await webhook.send(text)
+            except discord.errors.InvalidArgument:
+                pass
 
     async def get_payment(self):
         async with aiohttp.ClientSession() as session:

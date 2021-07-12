@@ -61,8 +61,8 @@ class ErrorHandler:
                                     Responses.NO_PAYMENT_SOURCE,
                                 '{"message": "Already purchased", "code": 100011}':
                                     Responses.ALREADY_PURCHASED,
-                                '{"message": "You need to verify your account'
-                                ' in order to perform this action", "code": 40002}':
+                                '{"message": "You need to verify your account in order to perform this action.",'
+                                ' "code": 40002}':
                                     Responses.NOT_VERIFIED,
                                 'You are being rate limited': Responses.RATE_LIMITED,
                                 'Access denied': Responses.ACCESS_DENIED,
