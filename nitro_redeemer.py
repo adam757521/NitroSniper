@@ -149,7 +149,7 @@ class NitroRedeemer:
                 break
 
             if response == Responses.CLAIMED:
-                print(await request.text())
+                print(await request.text())  # debug remove if wanted.
                 break
 
             if response == Responses.INVALID_GIFT:
@@ -163,7 +163,7 @@ class NitroRedeemer:
                 continue
 
             if response == Responses.NOT_VERIFIED:
-                self.tokens.remove(token)
+                del self.tokens[token]
 
             if response == Responses.RATE_LIMITED:
                 response_json = await request.json()
