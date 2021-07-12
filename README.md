@@ -20,8 +20,9 @@ Features
 
 Installation
 -------------
-[![Deploy to heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/adam757521/NitroSniper/tree/main)
-![](https://heroku.com/deploy?template=https://github.com/slow/nitro-sniper/tree/main)
+Heroku:
+  [![Deploy to heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/adam757521/NitroSniper/tree/main)
+  Make sure you turn on the worker dyno!
 
 Disclaimer
 -------------
