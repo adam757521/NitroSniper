@@ -38,6 +38,13 @@ def pad_to_center(l: list, w: int) -> str:
     return '\n'.join([' ' * (w // 2 - (len(max(l, key=len)) // 2)) + x for x in l])
 
 
+def get_columns():
+    try:
+        return os.get_terminal_size().columns
+    except OSError:
+        return 100
+
+
 def print_nitro():
     text = f'''{Fore.CYAN}
 @@@@@@@@@@@@@@@@@@@################################@@@@@@@@@@@@@@@@@@@
@@ -61,8 +68,7 @@ def print_nitro():
 &&&&&&&&&((&&&(((((((((((((((((((((@@@@%##########%@@@@@@@@@@@@@@@@@@@{Fore.WHITE}
     '''.replace('@', ' ')
 
-    width = os.get_terminal_size().columns
-    print(pad_to_center(text.splitlines(), width))
+    print(pad_to_center(text.splitlines(), get_columns()))
 
 
 def print_title():
@@ -75,8 +81,7 @@ def print_title():
 ╚═╝░░╚═╝╚═════╝░╚═╝░░╚═╝╚═╝░░░░░╚═╝░░░╚═════╝░  ╚═════╝░╚═╝░░╚══╝╚═╝╚═╝░░░░░╚══════╝╚═╝░░╚═╝
 {Fore.WHITE}'''.replace('░', ' ')
 
-    width = os.get_terminal_size().columns
-    print(pad_to_center(text.splitlines(), width))
+    print(pad_to_center(text.splitlines(), get_columns()))
 
 
 # PRIVNOTE
