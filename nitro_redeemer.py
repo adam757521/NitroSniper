@@ -26,6 +26,10 @@ class Responses(Enum):
         User is not verified.
     CLAIMED: :class:`int`
         User claimed gift.
+    SERVER_ERROR: :class:`int`
+        Discord returned 500.
+    ON_COOLDOWN: :class:`int`
+        Cannot redeem code, currently on cooldown.
     IN_CACHE: :class:`int`
         Gift is already in NitroRedeemer's cache.
     """
@@ -38,7 +42,9 @@ class Responses(Enum):
     ACCESS_DENIED = 5
     NOT_VERIFIED = 6
     CLAIMED = 7
-    IN_CACHE = 8
+    SERVER_ERROR = 8
+    ON_COOLDOWN = 9
+    IN_CACHE = 10
 
 
 class ErrorHandler:
@@ -62,10 +68,10 @@ class ErrorHandler:
                                 '{"message": "Already purchased", "code": 100011}':
                                     Responses.ALREADY_PURCHASED,
                                 '{"message": "You need to verify your account in order to perform this action.",'
-                                ' "code": 40002}':
-                                    Responses.NOT_VERIFIED,
+                                ' "code": 40002}': Responses.NOT_VERIFIED,
                                 'You are being rate limited': Responses.RATE_LIMITED,
                                 'Access denied': Responses.ACCESS_DENIED,
+                                '{"message": "500: Internal Server Error", "code": 0}': Responses.SERVER_ERROR
                                 }
 
     def handle_errors(self, response_text):
@@ -97,17 +103,23 @@ class NitroRedeemer:
         Represents a list of type float that represents discord API latency.
     """
 
-    def __init__(self, tokens, error_handler: ErrorHandler):
+    def __init__(self, tokens, error_handler: ErrorHandler, max_gifts=2, cooldown=24):
         self.tokens = tokens
         self.error_handler = error_handler
         self.cache = {}
         self.links = ['discord.gift', 'discordapp.com/gifts', 'discord.com/gifts']
         self.gift_re = re.compile(fr'({"|".join(self.links)})/\w{{16,24}}')
         self.rate_limits = {'rate_timestamp': 0, 'rate_delay': 0}
+        self.snipe_cooldown = {'cooldown': 0, 'sniped': 0}
         self.session = aiohttp.ClientSession()
         self.data = []
+        self.max_gifts = max_gifts
+        self.cooldown = cooldown
 
     async def redeem_code(self, code):
+        if self.snipe_cooldown['cooldown'] > time.time():
+            return None, Responses.ON_COOLDOWN
+
         if code in self.cache:
             return None, Responses.IN_CACHE
 
@@ -150,6 +162,13 @@ class NitroRedeemer:
 
             if response == Responses.CLAIMED:
                 print(await request.text())  # debug remove if wanted.
+                self.snipe_cooldown['sniped'] += 1
+                if self.snipe_cooldown['sniped'] >= self.max_gifts:
+                    self.snipe_cooldown['cooldown'] = int(time.time() + self.cooldown * 60 * 60)
+
+                break
+
+            if response == Responses.SERVER_ERROR:
                 break
 
             if response == Responses.INVALID_GIFT:

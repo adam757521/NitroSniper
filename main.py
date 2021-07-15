@@ -184,7 +184,9 @@ class Sniper(commands.Bot):
             return
 
         self.nitro_redeemer = nitro_redeemer.NitroRedeemer({bot.token: bot.payment_source_id for bot in bots},
-                                                           nitro_redeemer.ErrorHandler())
+                                                           nitro_redeemer.ErrorHandler(),
+                                                           get_config()["NITRO"]["MAX_SNIPES"],
+                                                           get_config()["NITRO"]["COOLDOWN"])
         loader.stop()
         clear()
         print_nitro()
