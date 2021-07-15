@@ -180,8 +180,7 @@ class Sniper(commands.Bot):
         if self.alt:
             await main.wait_until_ready()
 
-            print(len(self.guilds))
-            log(f'{Fore.GREEN}{self.user} is ready.{Fore.WHITE}')
+            log(f'{Fore.GREEN}{self.user} is ready. Sniping on {len(self.guilds)} guilds.{Fore.WHITE}')
             return
 
         self.nitro_redeemer = nitro_redeemer.NitroRedeemer({bot.token: bot.payment_source_id for bot in bots},
