@@ -41,7 +41,6 @@ Installation
 
 TODO
 -------------
-- Add nitro limiting (2 nitro claims per 24 hours etc..)
 - Make webhook messages nicer.
 - Got suggestions? Create an issue!
 
