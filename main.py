@@ -32,7 +32,10 @@ def log(string):
 
 
 def clear():
-    subprocess.call("clear" if os.name == 'posix' else "cls", shell=False)
+    try:
+        subprocess.call("clear" if os.name == 'posix' else "cls", shell=False)
+    except FileNotFoundError:
+        return
 
 
 def pad_to_center(l: list, w: int) -> str:
@@ -91,7 +94,6 @@ print_title()
 
 if 'config.json' not in os.listdir():
     log(f'{Fore.RED}Config file not found. Exiting...{Fore.WHITE}')
-    input()
     sys.exit(1)
 
 print(f'''{Fore.CYAN}┍━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -158,13 +160,22 @@ class Sniper(commands.Bot):
             try:
                 webhook = discord.Webhook.from_url(self.webhook, adapter=discord.AsyncWebhookAdapter(session))
 
-                await webhook.send(text)
+                if isinstance(text, discord.Embed):
+                    await webhook.send(embed=text)
+                else:
+                    await webhook.send(text)
             except discord.errors.InvalidArgument:
                 pass
 
     async def get_payment(self):
         async with aiohttp.ClientSession() as session:
             r = await session.get("https://discord.com/api/v8/users/@me/billing/payment-sources",
+                                  headers=self.get_headers())
+            return await r.json()
+
+    async def get_details(self):
+        async with aiohttp.ClientSession() as session:
+            r = await session.get("https://discord.com/api/v8/users/@me",
                                   headers=self.get_headers())
             return await r.json()
 
@@ -192,7 +203,6 @@ class Sniper(commands.Bot):
         print_nitro()
         print_title()
 
-        ready_text = rainbow(f"Connected to discord.")
         report_webhook = f"{Fore.GREEN}Specified.{Fore.CYAN}" if self.webhook else \
             f"{Fore.RED}Not specified.{Fore.CYAN}"
         payment_method = f"{Fore.GREEN}Found.{Fore.CYAN}" if self.payment_source_id else \
@@ -202,14 +212,18 @@ class Sniper(commands.Bot):
 ┃  Main Account: {Fore.GREEN}{self.user}{Fore.CYAN}
 ┃  Payment Method: {payment_method}
 ┃  Reporting webhook: {report_webhook}
-┃  {ready_text}{Fore.CYAN}
+┃  {rainbow(f"Connected to discord.")}{Fore.CYAN}
 ┃''' + Fore.WHITE)
 
         notes = []
         if not self.payment_source_id:
-            notes.append('Payment method not found on main account, Some nitro codes cannot be redeemed.')
+            notes.append('Payment method not found on main account, some nitro codes cannot be redeemed.')
         if not self.webhook:
-            notes.append('Reporting webhook not found. You will not be alerted in discord.')
+            notes.append('Reporting webhook not found. you will not be alerted in discord.')
+
+        personal_details = await self.get_details()
+        if not personal_details.get('phone'):
+            notes.append('You do not have a phone connected to your main account, your account might be phone-banned.')
 
         print(Fore.CYAN + '┍━━ NOTES' + Fore.WHITE)
         for note in notes:
@@ -217,6 +231,9 @@ class Sniper(commands.Bot):
         print()
 
     async def on_message(self, message):
+        if not main.nitro_redeemer:
+            return
+
         codes = main.nitro_redeemer.find_codes(message.content)
 
         if codes:
@@ -232,14 +249,26 @@ class Sniper(commands.Bot):
                 additional_data = f" - [{Fore.CYAN}{code}{Fore.WHITE}] - [{Fore.YELLOW}" \
                                   f"{message.guild if message.guild else 'DM'}{Fore.WHITE}] - [" \
                                   f"{Fore.YELLOW}{message.author}{Fore.WHITE}] " \
-                                  f"[{Fore.YELLOW}{response[0]}{Fore.WHITE}]"
-                if response[1] == nitro_redeemer.Responses.IN_CACHE and not get_config()["NITRO"]["PRINT_CACHE"]:
+                                  f"[{Fore.YELLOW}{response.token}{Fore.WHITE}]"
+                if response.response == nitro_redeemer.Responses.IN_CACHE and not get_config()["NITRO"]["PRINT_CACHE"]:
                     return
 
-                log(f'[{Fore.CYAN}{response[1].name}{Fore.WHITE}]' + additional_data)
+                log(f'[{Fore.CYAN}{response.response.name}{Fore.WHITE}]' + additional_data)
 
-                if response[1] == nitro_redeemer.Responses.CLAIMED:
-                    await self.notify_webhook(f"Claimed nitro gift, Check console for more details.")
+                if response.response == nitro_redeemer.Responses.CLAIMED:
+                    claimed_embed = discord.Embed(
+                        title="Claimed Nitro!",
+                        color=0x00ff00
+                    )
+
+                    claimed_embed.add_field(name="Code", value=code, inline=False)
+                    claimed_embed.add_field(name="Receiver", value=str(self.user), inline=False)
+                    claimed_embed.add_field(name="Redeemer Token", value=response.token[:-10] + "...", inline=False)
+                    claimed_embed.add_field(name="Sender", value=message.author, inline=False)
+                    claimed_embed.add_field(name="Guild", value=message.guild if message.guild else 'DM', inline=False)
+                    claimed_embed.add_field(name="Nitro Type", value=response.nitro_type, inline=False)
+
+                    await self.notify_webhook(claimed_embed)
 
         await self.process_commands(message)
 
@@ -323,7 +352,11 @@ class Sniper(commands.Bot):
                 await self.notify_webhook(f'Won a rerolled giveaway, check console for more information.')
 
     async def run(self):
-        await super().start(self.token)
+        try:
+            await super().start(self.token)
+        except discord.errors.LoginFailure:
+            log(f'{Fore.RED}An improper token has been found. Exiting...{Fore.WHITE}')
+            sys.exit(1)
 
 
 main = Sniper(token=get_config()["TOKENS"]["MAIN"], alt=False, command_prefix="<<<", self_bot=True, help_command=None)
@@ -342,6 +375,5 @@ if __name__ == '__main__':
 
     for alt in alts:
         loop.create_task(alt.run())
-    loop.run_forever()
 
-input()
+    loop.run_forever()

@@ -82,8 +82,22 @@ class ErrorHandler:
         return Responses.CLAIMED
 
 
+class NitroResponse:
+    def __init__(self, response, token, nitro_type):
+        self.response = response
+        self.token = token
+        self.nitro_type = nitro_type
+
+    @classmethod
+    def parse_json(cls, response_json, error_handler: ErrorHandler, redeemer_token):
+        response = error_handler.handle_errors(str(response_json))
+        nitro_type = None if response != Responses.CLAIMED else response_json['subscription_plan'].get('name')
+
+        return cls(response, redeemer_token, nitro_type)
+
+
 class NitroRedeemer:
-    """A nitro redeemer class that redeems nitro gifts.
+    """A nitro redeemer class that redeems nitro gifts
 
     Attributes
     -----------
@@ -118,15 +132,14 @@ class NitroRedeemer:
 
     async def redeem_code(self, code):
         if self.snipe_cooldown['cooldown'] > time.time():
-            return None, Responses.ON_COOLDOWN
+            return NitroResponse(Responses.ON_COOLDOWN, None, None)
 
         if code in self.cache:
-            return None, Responses.IN_CACHE
+            return NitroResponse(Responses.IN_CACHE, None, None)
 
         payment_required = False
-        response = Responses.RATE_LIMITED
-        self.cache[code] = response
-        token = None
+        nitro_response = NitroResponse(Responses.RATE_LIMITED, None, None)
+        self.cache[code] = nitro_response.response
 
         for token in list(self.tokens):
             payment_id = self.tokens[token]
@@ -155,12 +168,12 @@ class NitroRedeemer:
                                               headers=headers, json=payload)
             self.data.append(round((time.time() - start) * 1000))
 
-            response = self.error_handler.handle_errors(await request.text())
-            self.cache[code] = response
-            if response == Responses.ALREADY_CLAIMED:
+            nitro_response = NitroResponse.parse_json(await request.text(), self.error_handler, token)
+            self.cache[code] = nitro_response.response
+            if nitro_response.response == Responses.ALREADY_CLAIMED:
                 break
 
-            if response == Responses.CLAIMED:
+            if nitro_response.response == Responses.CLAIMED:
                 print(await request.text())  # debug remove if wanted.
                 self.snipe_cooldown['sniped'] += 1
                 if self.snipe_cooldown['sniped'] >= self.max_gifts:
@@ -168,30 +181,30 @@ class NitroRedeemer:
 
                 break
 
-            if response == Responses.SERVER_ERROR:
+            if nitro_response.response == Responses.SERVER_ERROR:
                 break
 
-            if response == Responses.INVALID_GIFT:
+            if nitro_response.response == Responses.INVALID_GIFT:
                 break
 
-            if response == Responses.NO_PAYMENT_SOURCE:
+            if nitro_response.response == Responses.NO_PAYMENT_SOURCE:
                 payment_required = True
                 continue
 
-            if response == Responses.ALREADY_PURCHASED:
+            if nitro_response.response == Responses.ALREADY_PURCHASED:
                 continue
 
-            if response == Responses.NOT_VERIFIED:
+            if nitro_response.response == Responses.NOT_VERIFIED:
                 del self.tokens[token]
 
-            if response == Responses.RATE_LIMITED:
+            if nitro_response.response == Responses.RATE_LIMITED:
                 response_json = await request.json()
 
                 self.rate_limits = {'rate_timestamp': time.time(),
                                     'rate_delay': response_json['retry_after']}
                 break
 
-        return token, response
+        return nitro_response
 
     def remove_links(self, text):
         for link in self.links:
