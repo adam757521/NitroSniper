@@ -168,7 +168,7 @@ class NitroRedeemer:
                                               headers=headers, json=payload)
             self.data.append(round((time.time() - start) * 1000))
 
-            nitro_response = NitroResponse.parse_json(await request.text(), self.error_handler, token)
+            nitro_response = NitroResponse.parse_json(await request.json(), self.error_handler, token)
             self.cache[code] = nitro_response.response
             if nitro_response.response == Responses.ALREADY_CLAIMED:
                 break
