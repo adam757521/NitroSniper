@@ -1,6 +1,7 @@
 import re
 import time
 from enum import Enum
+import json
 
 import aiohttp
 
@@ -57,8 +58,7 @@ class ErrorHandler:
     """
 
     def __init__(self):
-        self.error_responses = {'{"message": "Unknown Gift Code",'
-                                ' "code": 10038}': Responses.INVALID_GIFT,
+        self.error_responses = {'{"message": "Unknown Gift Code", "code": 10038}': Responses.INVALID_GIFT,
                                 '{"message": "This gift has been'
                                 ' redeemed already.", "code": 50050}':
                                     Responses.ALREADY_CLAIMED,
@@ -92,7 +92,7 @@ class NitroResponse:
     def parse_json(cls, response_json, error_handler: ErrorHandler, redeemer_token):
         response = error_handler.handle_errors(str(response_json))
         try:
-            nitro_type = None if response != Responses.CLAIMED else response_json['subscription_plan'].get('name')
+            nitro_type = None if response != Responses.CLAIMED else json.loads(response_json)['subscription_plan'].get('name')
         except:
             nitro_type = None
 
@@ -171,7 +171,7 @@ class NitroRedeemer:
                                               headers=headers, json=payload)
             self.data.append(round((time.time() - start) * 1000))
 
-            nitro_response = NitroResponse.parse_json(await request.json(), self.error_handler, token)
+            nitro_response = NitroResponse.parse_json(await request.text(), self.error_handler, token)
             self.cache[code] = nitro_response.response
             if nitro_response.response == Responses.ALREADY_CLAIMED:
                 break
