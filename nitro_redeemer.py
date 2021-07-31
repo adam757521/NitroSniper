@@ -91,7 +91,10 @@ class NitroResponse:
     @classmethod
     def parse_json(cls, response_json, error_handler: ErrorHandler, redeemer_token):
         response = error_handler.handle_errors(str(response_json))
-        nitro_type = None if response != Responses.CLAIMED else response_json['subscription_plan'].get('name')
+        try:
+            nitro_type = None if response != Responses.CLAIMED else response_json['subscription_plan'].get('name')
+        except:
+            nitro_type = None
 
         return cls(response, redeemer_token, nitro_type)
 
