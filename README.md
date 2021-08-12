@@ -41,7 +41,6 @@ Installation
 
 TODO
 -------------
-- Make webhook messages nicer.
 - Got suggestions? Create an issue!
 
 Disclaimer
