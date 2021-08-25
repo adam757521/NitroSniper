@@ -27,7 +27,9 @@ Installation
 -------------
 ### Heroku: ###
 
-  [![Deploy to heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/adam757521/NitroSniper/tree/main)
+  [![Deploy to heroku](https://www.herokucdn.com/deploy/button.svg)](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+
+  `DEPLOY TO HEROKU HAS BEEN REMOVED DUE TO HEAVY ABUSE, KEEP IN MIND THIS PROJECT IS FOR EDUCATIONAL PURPOSES AND WAS NOT MEANT TO VIOLATE THE DISCORD TOS.`
   
   - Turn on the worker dyno.
   - Change the settings env to your liking.
@@ -45,6 +47,5 @@ TODO
 
 Disclaimer
 -------------
-You `WILL` encounter bugs while using Giveaway Joiner / DM host. I advise of disabling these features.
 This project is for educational purposes and discord might ban you if you use it, I am NOT responsible for any bans caused by this program. USE AT YOUR OWN RISK.
 `If you like this project, please consider giving it a star! <3`
