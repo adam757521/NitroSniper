@@ -5,7 +5,8 @@
 </p>
 
 <p align="center">
-   A discord nitro code sniper written in python.
+  <a>A discord nitro code sniper written in python.</a>
+   <a>I DO NOT RECOMMEND USING THIS NITRO SNIPER, PLEASE USE THE <a href="https://github.com/adam757521/NitroSniperRewrite">REWRITE VERSION</a></a>
 </p>
 
 Features
